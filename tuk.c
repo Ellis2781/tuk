@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 	if(strcmp(argv[1], "-S")==0) {
-		if(argc<4) 
+		if(argc<3) 
 		{
 			printf("Not enough arguments\n");
 			return 1;
@@ -48,24 +48,6 @@ int main(int argc, char *argv[]) {
 				fptr = fopen("/etc/tuk/pkglist", "r");
 			}
 
-			if (fopen("test/Makefile", "r") == NULL) 
-			{
-				printf("Makefile doesn't exist\n");
-			}
-			else 
-			{
-				static char directory[50] = "etc/tuk/";
-				static char command[20] = "make -C etc/tuk";
-				sprintf(command, "%s %s", command, directory);
-				printf("Found Makefile, executing make\n");
-				//system(command);
-				if(system(command) != 0)
-				{
-					printf("Something failed, returning 1.\n");
-					return 1;
-				}			
-			}
-
 			//I kind of copied and pasted these functions from a tutorial
 			int line, col;			
 			indexOf(fptr, pkg.name, &line, &col);
@@ -83,7 +65,7 @@ int main(int argc, char *argv[]) {
 			}
 			else
 			{
-				printf("'%s' does not exist in pkglist. Please use the addpkg flag or add the package to pkglist.", pkg.name);
+				printf("'%s' does not exist in pkglist. Please use the addpkg flag or add the package to pkglist manually.\n", pkg.name);
 				return 1;
 			}
 			
@@ -94,12 +76,99 @@ int main(int argc, char *argv[]) {
 			//git clone
 			printf("Checking for a Makefile...\n");
 
+			git_libgit2_init();			
+
+			git_repository *repo = NULL;
+	
+			//until the pkglist reading is finished, this will be a set link for the giturl.
+
+			sprintf(pkg.giturl, "https://github.com/Ellis2781/tuk");
+
+			sprintf(pkg.directory, "usr/src/%s", pkg.name);
+
+			if(fopen(pkg.directory, "r") != NULL)
+			{
+				//this will add the new directory to the pkglist file but for now this is still in working
+				
+
+				//setting a static variable so that it's only available here
+				static int i = 1;
+
+				//adding "-" to the pkg directory to avoid - getting printed over and over again in the loop because the loop will run atleast once. 
+				//Without this directory names could be something like bash-1-2-3-4-5-6-7-8, this just isn't what is wanted.
+
+				static char temp[100];
+
+				sprintf(temp, pkg.directory);
+
+				sprintf(pkg.directory, "%s-", pkg.directory);
+				
+				//It took a "while" to get this loop running
+				while(fopen(temp, "r") != NULL)
+				{
+					printf("%s exists, checking another directory\n", temp);
+					
+					//adds one to the end of the package directory so if the first directory isn't found then it adds one to see if the next directory name exists and if it doesn't then it creates that directory and uses that in the pkg struct.
+				
+					//char *pkgp = pkg.directory;
+
+					sprintf(temp, "%s%d", pkg.directory, i);
+	
+					//sprintf(pkg.directory, "%s%d", pkg.directory, i);
+
+					i = ++i;
+				}
+
+				//adds the value of temp back to pkgdirectory after the loop is over
+				sprintf(pkg.directory, temp);
+			}
+			
+			printf("Using %s as package directory.\n", pkg.directory);
+
+			//Error handling
+			if(git_clone(&repo, pkg.giturl, pkg.directory, NULL) != 0)
+			{
+				
+				printf("The git clone has failed. Returning 1.\n");
+
+				printf(giterr_last()->message);
+				printf("\n");
+
+				//Prints the last error provided by git
+				return 1;
+			}
+
+			
+
 			//checks the directory from pkg.directory for the makefile
 
 			//stores arg 2 into the pkg struct
 
-			//checks if the package name is thee name of a valid package
+			//checks if the package name is the name of a valid package
 
+			char makefile[100];
+			
+			sprintf(makefile, "%s/Makefile", pkg.directory);
+
+			if(fopen(makefile, "r") == NULL) 
+			{
+				printf("Makefile doesn't exist in %s\n", pkg.directory);
+			}
+			else 
+			{
+				static char command[20] = "make -C";
+				sprintf(pkg.directory, "usr/src/%s", pkg.name);
+				sprintf(command, "%s %s", command, pkg.directory);
+				printf("Found Makefile, executing make\n");
+				//system(command);
+				if(system(command) != 0)
+				{
+					printf("Something failed, returning 1.\n");
+					return 1;
+				}
+				printf("%s was successfully built.\n", pkg.name);
+				return 0;			
+			}
 		}
 			
 	}
@@ -143,10 +212,6 @@ int main(int argc, char *argv[]) {
 
                 //This is where tuk program will check if the package name exists under /etc/tuk
 		//Currently working on getting git to work, may not function properly
-
-		//git_libgit2_init();
-	
-		//git_error_last();
 
 		//char command[1024];
 		//sprintf(command, "git clone %10s", argv[2]);
