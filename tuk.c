@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 			//then it stores the name into pkg.name and url into pkg.giturl
 
 			////check online directory with libcurl to see if it already has a makefile if possible.
-			printf("Downloading src...\n");
+			
 			//git clone
 			printf("Checking for a Makefile...\n");
 
@@ -81,7 +81,9 @@ int main(int argc, char *argv[]) {
 			git_repository *repo = NULL;
 	
 			//until the pkglist reading is finished, this will be a set link for the giturl.
-
+		
+			printf("Downloading src...\n");	
+	
 			sprintf(pkg.giturl, "https://github.com/Ellis2781/tuk");
 
 			sprintf(pkg.directory, "usr/src/%s", pkg.name);
@@ -118,7 +120,6 @@ int main(int argc, char *argv[]) {
 
 					i = ++i;
 				}
-
 				//adds the value of temp back to pkgdirectory after the loop is over
 				sprintf(pkg.directory, temp);
 			}
@@ -157,7 +158,6 @@ int main(int argc, char *argv[]) {
 			else 
 			{
 				static char command[20] = "make -C";
-				sprintf(pkg.directory, "usr/src/%s", pkg.name);
 				sprintf(command, "%s %s", command, pkg.directory);
 				printf("Found Makefile, executing make\n");
 				//system(command);
