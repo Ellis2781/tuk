@@ -1,7 +1,7 @@
 # tuk
 A git based package manager written in C
 
-Currently depends on libgit2
+Currently depends on libgit2 and libc of course
 
 This project is not yet complete but in somewhat working condition
 
