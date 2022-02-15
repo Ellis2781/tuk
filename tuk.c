@@ -12,8 +12,45 @@
 
 #include "tuk.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
+        if(strcmp(argv[1], "--help")==0) 
+	{
+		printf("tuk update                     |  System update\n"); 
+		printf("tuk -S [package]               |  Updates a package\n");
+		printf("tuk -R [package]               |  Removes a package\n");
+		printf("tuk addpkg [package] [giturl]  |  Adds a package\n");
+		printf("tuk --help                     |  Displays this page\n");
+		printf("tuk -c [pkglist]               |  Specifies pkglist to be used\n");
+		return 0;
+	}
+
 	static struct pkgconfig pkg;
+	
+	//Setting up the pkglist for later execution
+
+	FILE *fptr;
+	if(fopen("pkglist", "r") == 0 || fopen("pkglist", "r") != NULL)
+	{
+		fptr = fopen("pkglist", "r");
+	}
+	else if(fopen("/etc/tuk/pkglist", "r") == 0 || fopen("/etc/tuk/pkglist", "r") != NULL)
+	{
+		fptr = fopen("/etc/tuk/pkglist", "r");
+	}
+	else
+	{
+		printf("No pkglist was found in /etc/tuk/pkglist or the current directory. Please use the -c option to check somewhere else for the pkglist.");
+		return 1;
+	}
+	//}
+	//Eventually this function will use the config provided by the user
+	//else
+	//{
+	//	//fptr = fopen(argv[])
+	//	printf("Using user specified config");
+	//}
+
 	
 	if(argc<2) 
 	{
@@ -38,16 +75,7 @@ int main(int argc, char *argv[]) {
 			//At this point the package name is already supplied so now it can be added to the struct.
 			memcpy(pkg.name, argv[2], 50);
 			
-			FILE *fptr;
-			if(fopen("pkglist", "r") == 0 || fopen("pkglist", "r") != NULL)
-			{
-				fptr = fopen("pkglist", "r");
-			}
-			else if(fopen("/etc/tuk/pkglist", "r") == 0 || fopen("/etc/pkglist", "r") != NULL)
-			{
-				fptr = fopen("/etc/tuk/pkglist", "r");
-			}
-
+			
 			//I kind of copied and pasted these functions from a tutorial
 			int line, col;			
 			indexOf(fptr, pkg.name, &line, &col);
@@ -218,14 +246,5 @@ int main(int argc, char *argv[]) {
 		//system(command);
 		
 		return 0;
-        }
-	// As of now, this section is formatted horribly
-        if(strcmp(argv[1], "--help")==0) {
-		printf("System update		tuk update\n"); 
-		printf("Updates/reinstalls a package		tuk -S [package] \n");
-		printf("Removes a package		tuk -R [package]\n");
-		printf("Displays this page		tuk --help\n");
-		printf("Adds a package              tuk addpkg [package] [giturl]\n");
-		return 0;
-	}
+		}
 }
