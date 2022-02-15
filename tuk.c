@@ -14,6 +14,15 @@
 
 int main(int argc, char *argv[]) 
 {
+	static struct pkgconfig pkg;
+
+	if(argc<2) 
+	{
+		printf("No arguments specified. Use --help for help\n");
+		return 1;
+	}
+
+
         if(strcmp(argv[1], "--help")==0) 
 	{
 		printf("tuk update                     |  System update\n"); 
@@ -24,8 +33,6 @@ int main(int argc, char *argv[])
 		printf("tuk -c [pkglist]               |  Specifies pkglist to be used\n");
 		return 0;
 	}
-
-	static struct pkgconfig pkg;
 	
 	//Setting up the pkglist for later execution
 
@@ -52,11 +59,6 @@ int main(int argc, char *argv[])
 	//}
 
 	
-	if(argc<2) 
-	{
-		printf("No arguments specified. Use --help for help\n");
-		return 1;
-	}
 	if(strcmp(argv[1], "update")==0) {
 		// Updating stuff, existing packages
 		printf("Syncing all packages\n");
