@@ -1,6 +1,8 @@
 # tuk
 A git based package manager written in C
 
+Currently depends on libgit2
+
 This project is not yet complete but in somewhat working condition
 
 The purpose of this project is to build the base for my sel4-bsd project. 
